@@ -31,22 +31,26 @@ The implementation is structured as a **Cargo workspace** — a single repositor
 
 ### Workspace Layout
 
+All Rust code lives under the `intelligent-recognition/` folder. The repo root holds the README and any future non-Rust projects (e.g. the React app).
+
 ```
 document-scanning-concept/
-├── Cargo.toml                  ← workspace root (lists all member crates)
-│
-├── scanner-pipeline/           ← orchestrates all stages (library)
-│   ├── Cargo.toml
-│   └── src/lib.rs
-│
-└── crates/
-    ├── scanner-types/          ← shared types, traits, and error definitions
-    ├── scanner-preprocess/     ← RGBA→RGB, normalize, CHW layout (React handles resize)
-    ├── scanner-detect/         ← YOLO object detection (kornia-yolo)
-    ├── scanner-scan/           ← edge detection + quad corner extraction
-    ├── scanner-rectify/        ← homography + perspective warp
-    ├── scanner-digitalize/     ← binarize, sharpen, encode to PNG
-    └── scanner-wasm/           ← wasm-bindgen bindings (consumed by React)
+├── README.md
+└── intelligent-recognition/        ← Rust workspace root
+    ├── Cargo.toml                  ← workspace root (lists all member crates)
+    │
+    ├── scanner-pipeline/           ← orchestrates all stages (library)
+    │   ├── Cargo.toml
+    │   └── src/lib.rs
+    │
+    └── crates/
+        ├── scanner-types/          ← shared types, traits, and error definitions
+        ├── scanner-preprocess/     ← RGBA→RGB, normalize, CHW layout (React handles resize)
+        ├── scanner-detect/         ← YOLO object detection (kornia-yolo)
+        ├── scanner-scan/           ← edge detection + quad corner extraction
+        ├── scanner-rectify/        ← homography + perspective warp
+        ├── scanner-digitalize/     ← binarize, sharpen, encode to PNG
+        └── scanner-wasm/           ← wasm-bindgen bindings (consumed by React)
 ```
 
 Every crate is a **library crate** (`src/lib.rs`). There are no binaries. This is required for WASM compilation — only library crates can be compiled to `wasm32-unknown-unknown`.
@@ -59,7 +63,7 @@ Every crate is a **library crate** (`src/lib.rs`). There are no binaries. This i
 Foundational types shared across all crates. Has no computer vision dependencies.
 
 - `RawFrame` — raw RGBA pixel buffer from the camera
-- `GrayImage` — single-channel image after preprocessing
+- `ModelInput` — normalized float tensor in CHW format, ready for YOLO inference
 - `Point2D` — a 2D coordinate
 - `Quad` — four `Point2D` corners representing the document boundary
 - `BoundingBox` — axis-aligned rectangle from YOLO detection
@@ -132,7 +136,7 @@ Exports to JavaScript:
 
 No business logic lives here.
 
-- Dependencies: `scanner-pipeline`, `wasm-bindgen`, `js-sys`, `web-sys`
+- Dependencies: `scanner-pipeline`, `wasm-bindgen`, `js-sys`
 
 ---
 
@@ -235,6 +239,6 @@ After `init()` resolves, `detect_document` and `scan_document` are available as 
 ## WASM Build Notes
 
 - All crates except `scanner-wasm` are pure Rust and can be tested with `cargo test` on any platform.
-- To build for WASM: `wasm-pack build crates/scanner-wasm --target web`
+- To build for WASM: `wasm-pack build intelligent-recognition/crates/scanner-wasm --target web`
 - YOLO model weights must either be bundled via `include_bytes!` at compile time or passed in as a byte slice from the React side at runtime.
 - `kornia-yolo` may use Rayon for parallelism. Rayon is incompatible with standard WASM. If needed, disable default features and use single-threaded inference for the WASM target.

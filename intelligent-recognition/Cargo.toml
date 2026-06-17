@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "scanner-pipeline",
+    "crates/scanner-types",
+    "crates/scanner-preprocess",
+    "crates/scanner-detect",
+    "crates/scanner-scan",
+    "crates/scanner-rectify",
+    "crates/scanner-digitalize",
+    "crates/scanner-wasm",
+]
+resolver = "2"

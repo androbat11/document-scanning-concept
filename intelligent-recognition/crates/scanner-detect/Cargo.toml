@@ -1,0 +1,8 @@
+[package]
+name = "scanner-detect"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+scanner-types = { path = "../scanner-types" }
+scanner-preprocess = { path = "../scanner-preprocess" }
