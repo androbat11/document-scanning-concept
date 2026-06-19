@@ -9,5 +9,5 @@ use scanner_types::{ModelInput, RawFrame, ScannerError};
 ///   2. Normalize    (u8 [0, 255] -> f32 [0.0, 1.0])
 ///   3. HWC -> CHW   (rearrange axes for kornia-yolo tensor input)
 pub fn preprocess(frame: RawFrame) -> Result<ModelInput, ScannerError> {
-    todo!()
+   todo!()
 }
